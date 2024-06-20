@@ -1,4 +1,5 @@
 # Reflected Diffusion Models
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2304.04740-b31b1b.svg)](https://arxiv.org/abs/2304.04740)
 [![blog](https://img.shields.io/badge/blogpost-%20-blue?style=social&logo=disqus)](https://aaronlou.com/blog/2023/reflected-diffusion/)
@@ -8,6 +9,8 @@
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/reflected-diffusion-models/image-generation-on-cifar-10)](https://paperswithcode.com/sota/image-generation-on-cifar-10?p=reflected-diffusion-models)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/reflected-diffusion-models/image-generation-on-imagenet-32x32)](https://paperswithcode.com/sota/image-generation-on-imagenet-32x32?p=reflected-diffusion-models)
+
+WIP of Gabriel Nobis and Arina Belova
 
 This repo contains a PyTorch implementation for the paper [Reflected Diffusion Models](https://arxiv.org/abs/2304.04740) by [Aaron Lou](https://aaronlou.com) and [Stefano Ermon](https://cs.stanford.edu/~ermon/), appearing at ICML 2023.
 
