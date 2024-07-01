@@ -3,3 +3,7 @@ run/
 vis/
 datasets/
 *.pyc
+
+*.sif
+*.ckpt
+*.pth

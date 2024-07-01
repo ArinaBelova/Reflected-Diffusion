@@ -13,7 +13,7 @@ from hydra.types import RunMode
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torchvision.utils import make_grid, save_image
 
-import datasets
+import dataset
 import losses
 import sampling
 import sde_lib
@@ -90,7 +90,7 @@ def _run(rank, world_size, work_dir, cfg):
     initial_step = int(state['step'])
 
     # Build data iterators
-    train_ds, eval_ds = datasets.get_dataset(cfg)
+    train_ds, eval_ds = dataset.get_dataset(cfg)
 
     train_iter = iter(train_ds)
     eval_iter = iter(eval_ds)

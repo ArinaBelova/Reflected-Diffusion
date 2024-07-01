@@ -227,6 +227,9 @@ class NCSNpp(nn.Module):
         if self.progressive_input != 'none':
             input_pyramid = x
 
+        print(f"Image shape is {x.shape}")
+        print(f"Modules are {modules}")
+
         hs = [modules[m_idx](x)]
         m_idx += 1
         for i_level in range(self.num_resolutions):

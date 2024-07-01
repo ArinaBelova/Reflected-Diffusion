@@ -14,6 +14,8 @@ from torchvision.transforms.functional import InterpolationMode
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader, DistributedSampler, TensorDataset
 
+from datasets.vision_dataset import MNIST
+
 
 def identity(x):
     return x
@@ -69,7 +71,13 @@ class ImageFolderClassFast(vdsets.VisionDataset):
 def get_dataset(config, evaluation=False, distributed=True):
     
     dataroot = config.dataroot
-    if config.data.dataset == "CIFAR10":
+    if config.data.dataset == "MNIST":
+        # TODO: check for scaling [0,1] or [-1,1], we do [0,1] for now
+        train_set = MNIST(train=True)
+        test_set = MNIST(train=False)
+        workers = 2
+
+    elif config.data.dataset == "CIFAR10":
         
         train_transforms = transforms.Compose(
             [
@@ -105,7 +113,7 @@ def get_dataset(config, evaluation=False, distributed=True):
         )
         train_set = ImageFolderClassFast(os.path.join(dataroot, "imagenet-64x64", "train"), transform=data_transforms)
         test_set = ImageFolderClassFast(os.path.join(dataroot, "imagenet-64x64", "valid"), transform=data_transforms)
-        workers = 4
+        workers = 4    
     else:
         raise ValueError(f"{config.data.dataset} is not valid")
 
