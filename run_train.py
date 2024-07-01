@@ -80,7 +80,7 @@ def _run(rank, world_size, work_dir, cfg):
     optimizer = losses.get_optimizer(cfg, score_model.parameters())
 
     mprint(score_model)
-    mprint(f"EMA: {ema}")
+    mprint(f"EMA: {ema}") # exponential weighting of weights
     mprint(f"Optimizer: {optimizer}")
     mprint(f"Scaler: {scaler}.")
     
@@ -96,12 +96,13 @@ def _run(rank, world_size, work_dir, cfg):
     eval_iter = iter(eval_ds)
 
     sde = sde_lib.RVESDE(sigma_min=cfg.sde.sigma_min, sigma_max=cfg.sde.sigma_max, N=cfg.sde.num_scales)
-    sampling_eps = 1e-5
+    sampling_eps = 1e-5 # how close to 0 we go, numerical stability
 
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(cfg)
-    reduce_mean = cfg.training.reduce_mean
+    reduce_mean = cfg.training.reduce_mean # for loss
     likelihood_weighting = cfg.training.likelihood_weighting
+    # sample time and state of the process
     train_step_fn = losses.get_step_fn(sde, 
                                        train=True, 
                                        optimize_fn=optimize_fn,
@@ -113,7 +114,7 @@ def _run(rank, world_size, work_dir, cfg):
                                       reduce_mean=reduce_mean, 
                                       likelihood_weighting=likelihood_weighting)
 
-    # Build samping functions
+    # Build samping functions: backward process
     if cfg.training.snapshot_sampling:
         sampling_shape = (cfg.training.batch_size // cfg.ngpus, 
                           cfg.data.num_channels,
