@@ -1,5 +1,5 @@
 dataset: MNIST
-image_size: 28
+image_size: 32
 random_flip: True
 num_channels: 1
 classes: False

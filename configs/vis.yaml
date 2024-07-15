@@ -2,9 +2,10 @@ defaults:
   - _self_
   - override hydra/launcher: submitit_slurm
 
-load_dir: ???
+# Path to the model
+load_dir: "/home/fe/belova/projects/reflected/runs/MNIST/2024.07.09/114138_good" # "/home/fe/belova/projects/reflected/runs/CIFAR10/2024.07.04/170603_good"
 w: 0
-label: 388
+label: 8 #388
 
 sampling:
   method: pc
@@ -21,8 +22,8 @@ denoiser_path: null
 
 eval:
   ckpt: -1
-  batch_size: 100
-  rounds: 1
+  batch_size: 1 # 100
+  rounds: 1024 #1
 
 hydra:
   run:

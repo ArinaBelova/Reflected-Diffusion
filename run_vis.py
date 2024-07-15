@@ -72,6 +72,7 @@ def visualize(cfg, load_cfg, noise_removal_cfg, log_dir):
     logger.info(f"Generating samples for checkpoint {ckpt}")
     for r in range(cfg.eval.rounds):
         logger.info(f"Round {r}")
+        #logger.info(f"Lables is {labels}")
         samples = sampling_fn(score_model, noise_removal_model=noise_removal_model, weight=w, class_labels=labels)[0]
         samples_np = np.round(samples.clip(min=0, max=1).permute(0, 2, 3, 1).cpu().numpy() * 255).astype(np.uint8)
        
@@ -94,6 +95,7 @@ def main(cfg):
     load_cfg = utils.load_hydra_config_from_run(cfg.load_dir)
 
     log_dir = hydra_cfg.run.dir if hydra_cfg.mode == RunMode.RUN else os.path.join(hydra_cfg.sweep.dir, hydra_cfg.sweep.subdir)
+    # print(f"Hydra Log dir is {log_dir}")
     utils.makedirs(log_dir)
 
     # overwrite the sampling instructions

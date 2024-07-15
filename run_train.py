@@ -23,6 +23,8 @@ from models import utils as mutils
 from models import vdm
 from models.ema import ExponentialMovingAverage
 
+import wandb
+
 torch.backends.cudnn.benchmark = True
 
 
@@ -58,6 +60,11 @@ def _run(rank, world_size, work_dir, cfg):
         utils.makedirs(sample_dir)
         utils.makedirs(checkpoint_dir)
         utils.makedirs(os.path.dirname(checkpoint_meta_dir))
+
+    # wandb support
+    wandb.init(
+        project="reflected_diffusion",
+    )
 
     # logging
     if rank == 0:
@@ -136,6 +143,8 @@ def _run(rank, world_size, work_dir, cfg):
         batch_class = batch[1].to(device) if cfg.data.classes else None
         loss = train_step_fn(state, batch_imgs, class_labels=batch_class)
 
+        wandb.log({"loss": loss})
+
         if step % cfg.training.log_freq == 0:
             mprint("step: %d, training_loss: %.5e" % (step, loss.item()))
         
@@ -149,6 +158,7 @@ def _run(rank, world_size, work_dir, cfg):
             batch_imgs = eval_batch[0].to(device)
             batch_class = eval_batch[1].to(device) if cfg.data.classes else None
             eval_loss = eval_step_fn(state, batch_imgs)
+            wandb.log({"eval_loss": eval_loss})
             mprint("step: %d, evaluation_loss: %.5e" % (step, eval_loss.item()))
 
         if step != 0 and step % cfg.training.snapshot_freq == 0 or step == num_train_steps:

@@ -14,7 +14,7 @@ from torchvision.transforms.functional import InterpolationMode
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader, DistributedSampler, TensorDataset
 
-from datasets.vision_dataset import MNIST
+from datasets.vision_datasets import MNIST
 
 
 def identity(x):
@@ -164,5 +164,7 @@ def get_dataset(config, evaluation=False, distributed=True):
             shuffle=(test_sampler is None),
         )
 
+        # IMPORTANT: For eval script it is better to comment out this cycle_loader. 
+        # It is used only in training to generate more training data 
         train_loader, test_loader = cycle_loader(train_loader, train_sampler), cycle_loader(test_loader, test_sampler)
         return train_loader, test_loader

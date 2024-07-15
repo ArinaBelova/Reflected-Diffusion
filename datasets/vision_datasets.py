@@ -11,6 +11,8 @@ from torchvision import datasets
 from torchvision.transforms.functional import to_tensor, center_crop
 from torchvision.datasets.folder import default_loader
 
+from torchvision.transforms import Grayscale, Resize
+
 
 SFXS = '.jpg .jpeg .png .tiff'.split(' ')
 
@@ -78,6 +80,16 @@ class MNIST(TVData):
 
     def __init__(self, *args, cache_dir='cache_datasets', **kwargs):
         super().__init__(datasets.MNIST, *args, cache_dir=cache_dir, download=True, **kwargs)
+        self.channel_mult = Grayscale(num_output_channels=3)
+        self.resize = Resize(size=32)
+
+    def __getitem__(self, idx):
+        x, y = self.dset_train[idx] #if idx < self.__N_train else self.dset_test[idx-self.__N_train]
+        #x = self.channel_mult(x)
+        x = self.resize(x)
+        x = to_tensor(x)
+        #return scale_img(x), y
+        return x, y    
 
 class FASHIONMNIST(TVData):
 
