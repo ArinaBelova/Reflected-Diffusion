@@ -27,6 +27,8 @@ sde:
   sigma_min: 0.01
   sigma_max: 5
   num_scales: 1000
+  K: 0
+  H: 0.5
 
 sampling:
   n_steps_each: 1

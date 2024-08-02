@@ -102,7 +102,15 @@ def _run(rank, world_size, work_dir, cfg):
     train_iter = iter(train_ds)
     eval_iter = iter(eval_ds)
 
-    sde = sde_lib.RVESDE(sigma_min=cfg.sde.sigma_min, sigma_max=cfg.sde.sigma_max, N=cfg.sde.num_scales)
+    sde = sde_lib.RVESDE(
+        sigma_min=cfg.sde.sigma_min,
+        sigma_max=cfg.sde.sigma_max,
+        N=cfg.sde.num_scales,
+        K=cfg.sde.K,
+        H=cfg.sde.H,
+        device=device,
+    )
+
     sampling_eps = 1e-5 # how close to 0 we go, numerical stability
 
     # Build one-step training and evaluation functions
