@@ -131,9 +131,9 @@ class SDE(abc.ABC):
         corr = sigma_t[:,1:,0].clone()
         cov_yy = sigma_t[:,1:,1:].clone()
         var_x = sigma_t[:,0,0].clone()
-        alpha = torch.linalg.solve(cov_yy,corr)
-        var_c = torch.sum(alpha*corr,dim=-1)
-        return sigma_t[:,None,None,None], mean, corr, cov_yy, alpha[:,None,None,None,:], var_x[:,None,None,None], var_c[:,None,None,None]
+        eta = torch.linalg.solve(cov_yy,corr)
+        var_c = torch.sum(eta*corr,dim=-1)
+        return sigma_t[:,None,None,None], mean, corr, cov_yy, eta[:,None,None,None,:], var_x[:,None,None,None], var_c[:,None,None,None]
 
     def compute_YiYj(self,t):
         sum_gamma = self.gamma_i + self.gamma_j

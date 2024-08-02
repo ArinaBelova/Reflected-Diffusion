@@ -77,10 +77,43 @@ def get_sde_loss_fn(sde, train, reduce_mean=True, likelihood_weighting=True, eps
         """
         score_fn = mutils.get_score_fn(sde, model, train=train)
         t = torch.rand(batch.shape[0], device=batch.device) * (sde.T - eps) + eps
-        z = torch.randn_like(batch)
 
-        mean, std = sde.marginal_prob(batch, t)
-        perturbed_data = cube.reflect(mean + std[:, None, None, None] * z)
+        if sdk.K==0:
+            '''the purely Brownian setting'''
+            #changed z to noise, to be not confused with z=(x,y1,...,yK)
+            mean, std = sde.marginal_prob(batch, t)
+            noise = std[:, None, None, None] * torch.randn_like(batch)
+        else:
+            '''MA-fBM setting'''
+            cov_matrix, aug_mean, _, _, eta, var_x, var_c = sde.marginal_stats(t, batch=batch)
+            batch_size, c, h, w = batch.shape
+
+            #the mean changes from x0 to x0 + \sum_k (eta_k y_k)
+            mean = aug_mean[:, :, :, :, 0]
+            std = torch.sqrt(var_x - var_c)
+
+            #sample from augmented system
+            aug_noise = sample_from_batch_multivariate_normal(
+                torch.squeeze(cov_matrix),
+                c=c,
+                h=h,
+                w=w,
+                batch_size=batch_size,
+                aug_dim=sde.K + 1,
+                device=batch.device,
+            )
+
+            noise = aug_noise[:, :, :, :, 0].clone()
+
+            '''
+            Gabriel: this is what we do in GFDM, not sure if we need it here
+            #y = aug_noise[:, :, :, :, 1:].clone()
+            #s_t = torch.sum(eta * y, dim=-1)
+            #noise = (noise - s_t) / std
+            #x_t = xi + mean[:, :, :, :, 0] - s_t
+            '''
+
+        perturbed_data = cube.reflect(mean + noise)
         score = score_fn(perturbed_data, t, class_labels=class_labels)
         score_hk = cube.score_hk(perturbed_data, mean, std)
 
