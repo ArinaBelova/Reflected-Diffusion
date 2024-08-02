@@ -2,6 +2,7 @@ weights/
 run/
 vis/
 datasets/
+wandb/
 *.pyc
 
 *.sif

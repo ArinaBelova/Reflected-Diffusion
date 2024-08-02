@@ -3,9 +3,9 @@ defaults:
   - override hydra/launcher: submitit_slurm
 
 # Path to the model
-load_dir: "/home/fe/belova/projects/reflected/runs/MNIST/2024.07.09/114138_good" # "/home/fe/belova/projects/reflected/runs/CIFAR10/2024.07.04/170603_good"
+load_dir: "/home/fe/belova/projects/reflected/runs/CIFAR10/2024.07.04/170603_good" # "/home/fe/belova/projects/reflected/runs/MNIST/2024.07.09/114138_good" 
 w: 0
-label: 8 #388
+label: null #8 #388 we're not using labels guidance in the training yet
 
 sampling:
   method: pc
@@ -22,8 +22,8 @@ denoiser_path: null
 
 eval:
   ckpt: -1
-  batch_size: 1 # 100
-  rounds: 1024 #1
+  batch_size: 1000 # 100
+  rounds: 50 #1
 
 hydra:
   run:

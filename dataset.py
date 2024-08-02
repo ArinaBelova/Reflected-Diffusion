@@ -68,7 +68,7 @@ class ImageFolderClassFast(vdsets.VisionDataset):
         return len(self.image_paths)
 
 
-def get_dataset(config, evaluation=False, distributed=True):
+def get_dataset(config, evaluation=False, distributed=True, eval=False):
     
     dataroot = config.dataroot
     if config.data.dataset == "MNIST":
@@ -166,5 +166,8 @@ def get_dataset(config, evaluation=False, distributed=True):
 
         # IMPORTANT: For eval script it is better to comment out this cycle_loader. 
         # It is used only in training to generate more training data 
-        train_loader, test_loader = cycle_loader(train_loader, train_sampler), cycle_loader(test_loader, test_sampler)
-        return train_loader, test_loader
+        if eval:
+            return train_loader, test_loader
+        else:
+            train_loader, test_loader = cycle_loader(train_loader, train_sampler), cycle_loader(test_loader, test_sampler)
+            return train_loader, test_loader

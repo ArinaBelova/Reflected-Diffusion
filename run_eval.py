@@ -31,7 +31,7 @@ def run(cfg, work_dir):
   
     # Get the datasets 
     gen_loader, gen_length = get_generated_dataset(cfg.generated_data_path)
-    train_loader, test_loader = dataset.get_dataset(cfg, distributed=False)
+    train_loader, test_loader = dataset.get_dataset(cfg, distributed=False, eval=True)
     
     if cfg.eval_methods.IS:
         logger.info('compute IS ...')
@@ -76,17 +76,20 @@ def run(cfg, work_dir):
         # normalise=True as we have image in float32 type in [0,1]
         fid = FrechetInceptionDistance(feature=cfg.feature, normalize=True).to(device)
 
-        logger.info("Loading CIFAR-10 dataset data into the Inception module")
+        logger.info(f"Loading {cfg.data} dataset data into the Inception module")
+        
         # Uncomment if want to use a subset of dataloader
-        # gen_loader_iter = iter(fid_loder)
+        # ground_truth_loader_iter = iter(fid_loder)
         # for _ in range(gen_length):
-        #     data, _ = next(gen_loader_iter)
+        #     data, _ = next(ground_truth_loader_iter)
+        #     fid.update(data, real=True)
+
         for data, _ in fid_loder:
             data = data.to(device)
             # data = rgb_transform(inverse_scaler(data))
             fid.update(data, real=True)
 
-        logger.info("Loading our generated CIFAR-10 data into the Inception module")
+        logger.info(f"Loading our generated {cfg.data} data into the Inception module")
         logger.info(f"Length of our generated dataset is {len(gen_loader)}")
         for data, _ in gen_loader:
             data = data.to(device)

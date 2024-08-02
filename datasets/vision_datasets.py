@@ -85,7 +85,7 @@ class MNIST(TVData):
 
     def __getitem__(self, idx):
         x, y = self.dset_train[idx] #if idx < self.__N_train else self.dset_test[idx-self.__N_train]
-        #x = self.channel_mult(x)
+        x = self.channel_mult(x) # needed for computing FID score. Inception model requires 3 channeles. Not required for trianing.
         x = self.resize(x)
         x = to_tensor(x)
         #return scale_img(x), y

@@ -11,20 +11,16 @@ training:
 eval:
   batch_size: 1
 
-# Hopefully we get these params for train/test dataloaders from the data/dataset.yaml
-# data:
-#   dataset: CIFAR10
-#   gen_dataset: CIFAR10
-#   image_size: 32
-#   random_flip: true
+# 1024 CIFAR-10 images generated with "/runs/CIFAR10/2024.07.04/170603_good": "vis/2024.07.09/144145/all_images"
+# 1024 MNIST images generated with "/runs/MNIST/2024.07.09/114138_good" : "vis/2024.07.15/1024_mnist_gen_ds/images_dir"
 
-generated_data_path: "/home/fe/belova/projects/reflected/vis/2024.07.09/144145/all_images"
+generated_data_path: "/home/fe/belova/projects/reflected/vis/2024.07.17/160423/images" # 50K generated samples
 
 eval_methods:
   IS: true
   FID: true
 
-fid_on_test: true # false
+fid_on_test: false # false
 
 # This arg is needed for FID score
 feature: 2048

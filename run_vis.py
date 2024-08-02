@@ -74,12 +74,21 @@ def visualize(cfg, load_cfg, noise_removal_cfg, log_dir):
         logger.info(f"Round {r}")
         #logger.info(f"Lables is {labels}")
         samples = sampling_fn(score_model, noise_removal_model=noise_removal_model, weight=w, class_labels=labels)[0]
-        samples_np = np.round(samples.clip(min=0, max=1).permute(0, 2, 3, 1).cpu().numpy() * 255).astype(np.uint8)
-       
-        nrow = int(np.sqrt(samples.shape[0]))
-        image_grid = make_grid(samples, nrow, padding=0)
-        save_image(image_grid, os.path.join(this_sample_dir, f"samples_{r}.png"))
+        samples_np = np.round(samples.clip(min=0, max=1).permute(0, 2, 3, 1).cpu().numpy() * 255).astype(np.uint8) # permute to have standard numpy images format [bs, x, y, channels]?
+        
+        # save images one by one and not as a grid of images
+        for idx_s, s in enumerate(samples):
+            # max(cfg.eval.batch_size, cfg.eval.rounds)
+            current_num = len(samples) * r + idx_s
+            save_image(s, os.path.join(this_sample_dir, f"samples_{current_num}.png"))
 
+        # For now I don't want to save images as a grid; I want 1 image in 1 .png file
+        # nrow = int(np.sqrt(samples.shape[0]))
+        # image_grid = make_grid(samples, nrow, padding=0)
+
+        # save_image(image_grid, os.path.join(this_sample_dir, f"samples_{r}.png"))
+
+        # For now I leave compressed numpy save as it is
         with open(os.path.join(this_sample_dir, f"samples_{r}.npz"), "wb") as fout:
             io_buffer = io.BytesIO()
             np.savez_compressed(io_buffer, samples=samples_np)

@@ -259,7 +259,7 @@ class ResnetBlockBigGANpp(nn.Module):
                 h = up_or_down_sampling.downsample_2d(h, self.fir_kernel, factor=2)
                 x = up_or_down_sampling.downsample_2d(x, self.fir_kernel, factor=2)
             else:
-                print(f"Shape of the latent variable is: {h.shape}")
+                #print(f"Shape of the latent variable is: {h.shape}")
                 h = up_or_down_sampling.naive_downsample_2d(h, factor=2)
                 x = up_or_down_sampling.naive_downsample_2d(x, factor=2)
 
