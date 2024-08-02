@@ -7,6 +7,7 @@ import numpy as np
 from models import utils as mutils
 
 import cube
+from multivariate import sample_from_batch_multivariate_normal
 
 
 def get_optimizer(config, params):
