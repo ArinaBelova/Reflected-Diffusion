@@ -25,8 +25,8 @@ def omega_optimized(gamma, hurst, time_horizon, return_cost=False, return_Ab = F
 
     A = (time_horizon + (torch.exp(- (gamma_i + gamma_j) * time_horizon) - 1) / (gamma_i + gamma_j)) / (
                 gamma_i + gamma_j)
-    b = time_horizon / gamma ** (hurst + .5) * ts.gammainc(hurst + .5, gamma * time_horizon) - (
-                hurst + .5) / gamma ** (hurst + 1.5) * ts.gammainc(hurst + 1.5, gamma * time_horizon)
+    b = time_horizon / gamma ** (hurst + .5) * ts.gammainc(torch.tensor(hurst + .5, device=device), gamma * time_horizon) - (
+                hurst + .5) / gamma ** (hurst + 1.5) * ts.gammainc(torch.tensor(hurst + 1.5, device=device), gamma * time_horizon)
 
     # solve the linear programm
     omega = torch.linalg.solve(A, b)

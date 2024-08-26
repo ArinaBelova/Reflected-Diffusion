@@ -79,7 +79,7 @@ def get_sde_loss_fn(sde, train, reduce_mean=True, likelihood_weighting=True, eps
         score_fn = mutils.get_score_fn(sde, model, train=train)
         t = torch.rand(batch.shape[0], device=batch.device) * (sde.T - eps) + eps
 
-        if sdk.K==0:
+        if sde.K==0:
             '''the purely Brownian setting'''
             #changed z to noise, to be not confused with z=(x,y1,...,yK)
             mean, std = sde.marginal_prob(batch, t)

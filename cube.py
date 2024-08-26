@@ -174,6 +174,9 @@ def score_hk(x, x_orig, sigma, efs=20, refls=10, min_cutoff=1e-2):
         t = t * torch.ones(x.shape[0]).to(x)
 
     ef_cond = t > min_cutoff
+    # TODO: not sure if below is correct! 
+    ef_cond = ef_cond.squeeze()
+
     x_ef = x[ef_cond]
     x_orig_ef = x_orig[ef_cond]
     t_ef = t[ef_cond]

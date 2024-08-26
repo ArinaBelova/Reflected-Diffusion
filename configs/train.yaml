@@ -1,7 +1,7 @@
 defaults:
   - _self_
   - model: ddpmpp
-  - data: mnist #cifar10
+  - data: cifar10 #cifar10
   - override hydra/launcher: submitit_slurm
 
 ngpus: 1 # 4
@@ -9,11 +9,11 @@ dataroot: "/home/fe/belova/projects/reflected/Reflected-Diffusion/datasets/" # d
 
 training:
   batch_size: 128
-  n_iters: 10000  #1300001
-  snapshot_freq: 1000 # 50000
-  log_freq: 50
-  eval_freq: 100
-  snapshot_freq_for_preemption: 5000 # 10000
+  n_iters: 2 #500000  #MNIST: 10000 orig: 1300001
+  snapshot_freq: 1 #10000 # MNIST: 1000 orig: 50000
+  log_freq: 1 #50
+  eval_freq: 1 #100
+  snapshot_freq_for_preemption: 1 #10000 # MNIST: 5000 # orig: 10000
   snapshot_sampling: True
   likelihood_weighting: False
   reduce_mean: False
@@ -27,7 +27,7 @@ sde:
   sigma_min: 0.01
   sigma_max: 5
   num_scales: 1000
-  K: 0
+  K: 3 #0
   H: 0.5
 
 sampling:

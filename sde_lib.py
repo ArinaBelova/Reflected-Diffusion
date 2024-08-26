@@ -8,7 +8,7 @@ from torch.distributions import MultivariateNormal
 from optimal_weights import omega_optimized, gamma_by_gamma_max, gamma_by_r
 
 
-class SDE(abc.ABC):
+class SDE(abc.ABC, torch.nn.Module):
     """SDE abstract class. Functions are designed for a mini-batch of inputs."""
 
     def __init__(self, N, K=0, H=0.5, gamma_max=20.0, norm_var=True, device='cpu'):
@@ -29,30 +29,6 @@ class SDE(abc.ABC):
         self.gamma_max = gamma_max
         self.norm_var = norm_var
         self.device = device
-
-        '''
-        Given H and K determine the optimal approximation coefficients by solving Aw=b for w
-        '''
-
-        if self.K > 0:
-            if self.K == 1:
-                gamma = gamma_by_r(K, torch.sqrt(torch.tensor(gamma_max)), device=device)
-            else:
-                gamma = gamma_by_gamma_max(K, self.gamma_max, device=device)
-            omega, A, b = omega_optimized(
-                gamma, self.H, self.T, return_Ab=True, device=device
-            )
-
-        else:
-            gamma = torch.tensor([0.0])
-            omega = torch.tensor([1.0])
-            A = torch.tensor([1.0])
-            b = torch.tensor([1.0])
-
-        self.register_buffer("gamma", torch.as_tensor(gamma, device=device)[None, :])
-        self.register_buffer("gamma_i", self.gamma[:, :, None].clone())
-        self.register_buffer("gamma_j", self.gamma[:, None, :].clone())
-        self.update_omega(omega,A=A,b=b)
 
     @property
     @abc.abstractmethod
@@ -87,7 +63,7 @@ class SDE(abc.ABC):
         """
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def compute_cov(self,t):
         '''
         Compute covariance matrix of augmented forward process
@@ -280,8 +256,42 @@ class RVESDE(SDE):
         """
 
         super().__init__(
-            N, K=K, H=H, gamma_max=gamma_max, norm_var=norm_var, device=device
+            N=N, K=K, H=H, gamma_max=gamma_max, norm_var=norm_var, device=device
         )
+
+        #self.device = device
+        #self.N = N removed as it is set in the parent class SDE already
+        self.T_val = T # kinda initial value, will be "overwritten" by the getter decorator;
+        self.aug_dim = self.K + 1
+
+        ###############################################################################
+        # Moved part of SDE init here since SDE object is kinda an abstract mother-class 
+        # And RVESDE is our fractional impemetation case
+
+        '''
+        Given H and K determine the optimal approximation coefficients by solving Aw=b for w
+        '''
+
+        if self.K > 0:
+            if self.K == 1:
+                gamma = gamma_by_r(K, torch.sqrt(torch.tensor(gamma_max)), device=device)
+            else:
+                gamma = gamma_by_gamma_max(K, self.gamma_max, device=device)
+            omega, A, b = omega_optimized(
+                gamma, self.H, self.T_val, return_Ab=True, device=device         
+            ) 
+        else:
+            gamma = torch.tensor([0.0])
+            omega = torch.tensor([1.0])
+            A = torch.tensor([1.0])
+            b = torch.tensor([1.0])
+
+        self.register_buffer("gamma", torch.as_tensor(gamma, device=device)[None, :])
+        self.register_buffer("gamma_i", self.gamma[:, :, None].clone())
+        self.register_buffer("gamma_j", self.gamma[:, None, :].clone())
+        self.update_omega(omega,A=A,b=b)
+        ###############################################################################
+
         self.register_buffer("sigma_min", torch.as_tensor(torch.tensor([sigma_min]), device=self.device))
         self.register_buffer("sigma_max", torch.as_tensor(torch.tensor([sigma_max]), device=self.device))
 
@@ -291,32 +301,29 @@ class RVESDE(SDE):
             device=self.device))
 
         self.discrete_sigmas = torch.exp(
-            torch.linspace(np.log(self.sigma_min), np.log(self.sigma_max), N)
+            torch.linspace(np.log(self.sigma_min.cpu()[0]), np.log(self.sigma_max.cpu()[0]), N)
         )
-
-        self.N = N
-        self.T_val = T
 
         '''normalize the terminal and initial marginal variance to the corresponding values of the purely Brownian case'''
 
         if self.norm_var and self.K > 0:
             var_T = self.compute_covXiXj(self.T[:, None, None])
-            omega = self.sigma_max * self.omega[0] / torch.sqrt(var_T)
+            omega = self.sigma_max * omega[0] / torch.sqrt(var_T) # was self.omega, but I'm not sure if we set omega anywhere above as an attribute 
             self.update_omega(omega)
 
     @property
     def T(self):
-        return self.T_val
+        return torch.as_tensor([self.T_val], device=self.device)
 
     def sde(self, x, t):
-        sigma = self.sigma_min * (self.sigma_max / self.sigma_min) ** t
-        drift = torch.zeros_like(x)
-        diffusion = sigma * torch.sqrt(torch.tensor(2 * (np.log(self.sigma_max) - np.log(self.sigma_min)),
+        sigma = self.sigma_min * (self.sigma_max / self.sigma_min) ** t.cpu()
+        drift = torch.zeros_like(x, device=x.device) # was just x
+        diffusion = torch.tensor(sigma, device=t.device) * torch.sqrt(torch.tensor(2 * (torch.log(self.sigma_max) - torch.log(self.sigma_min)),
                                                     device=t.device))
         return drift, diffusion
 
     def marginal_prob(self, x, t):
-        std = self.sigma_min * (self.sigma_max / self.sigma_min) ** t
+        std = self.sigma_min * (self.sigma_max / self.sigma_min) ** t #.cpu()
         mean = x
         return mean, std
 

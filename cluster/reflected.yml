@@ -107,4 +107,5 @@ dependencies:
       - wandb==0.17.3
       - torch-fidelity==0.3.0
       - torchmetrics==1.4.0
+      - einops==0.8.0
 prefix: /home/belova/mambaforge/envs/reflected
