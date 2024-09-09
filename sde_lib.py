@@ -316,7 +316,7 @@ class RVESDE(SDE):
         return torch.as_tensor([self.T_val], device=self.device)
 
     def sde(self, x, t):
-        sigma = self.sigma_min * (self.sigma_max / self.sigma_min) ** t.cpu()
+        sigma = self.sigma_min * (self.sigma_max / self.sigma_min) ** t #.cpu()
         drift = torch.zeros_like(x, device=x.device) # was just x
         diffusion = torch.tensor(sigma, device=t.device) * torch.sqrt(torch.tensor(2 * (torch.log(self.sigma_max) - torch.log(self.sigma_min)),
                                                     device=t.device))

@@ -91,7 +91,7 @@ def get_sde_loss_fn(sde, train, reduce_mean=True, likelihood_weighting=True, eps
 
             #the mean changes from x0 to x0 + \sum_k (eta_k y_k)
             mean = aug_mean[:, :, :, :, 0]
-            std = torch.sqrt(var_x - var_c)
+            std = torch.sqrt(var_x - var_c).squeeze() # TODO: fix of dimensions issue
 
             #sample from augmented system
             aug_noise = sample_from_batch_multivariate_normal(
@@ -105,7 +105,9 @@ def get_sde_loss_fn(sde, train, reduce_mean=True, likelihood_weighting=True, eps
             )
 
             noise = aug_noise[:, :, :, :, 0].clone()
-
+            y = aug_noise[:, :, :, :, 1:].clone()
+            s_t = torch.sum(eta * y, dim=-1)
+            mean += s_t
             '''
             Gabriel: this is what we do in GFDM, not sure if we need it here
             #y = aug_noise[:, :, :, :, 1:].clone()

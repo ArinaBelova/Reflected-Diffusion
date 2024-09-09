@@ -322,7 +322,7 @@ def get_pc_sampler(sde, shape, predictor, corrector, denoiser, snr,
         with torch.no_grad():
             # Initial sample
             x = torch.rand(shape).to(device)
-            timesteps = torch.linspace(sde.T, eps, sde.N, device=device)
+            timesteps = torch.linspace(sde.T.item(), eps, sde.N, device=device)
 
             for i in range(sde.N):
                 t = timesteps[i]

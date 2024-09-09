@@ -227,9 +227,6 @@ class NCSNpp(nn.Module):
         if self.progressive_input != 'none':
             input_pyramid = x
 
-        print(f"Image shape is {x.shape}")
-        print(f"Modules are {modules}")
-
         hs = [modules[m_idx](x)]
         m_idx += 1
         for i_level in range(self.num_resolutions):
@@ -248,6 +245,8 @@ class NCSNpp(nn.Module):
                     h = modules[m_idx](hs[-1])
                     m_idx += 1
                 else:
+                    # print(f"Hidden state is {hs[-1].shape}") [128, 128, 28, 28] MNIST
+                    # print(f"Time embedding is {temb[0].shape}") [512] MNIST
                     h = modules[m_idx](hs[-1], temb)
                     m_idx += 1
 
@@ -280,11 +279,17 @@ class NCSNpp(nn.Module):
         # Upsampling block
         for i_level in reversed(range(self.num_resolutions)):
             for i_block in range(self.num_res_blocks + 1):
+                #print(f"Hidden size is {h.shape}")
+                #print(f"POPPED hidden size is {hs.pop().shape}")
+                #print(f"Resnet block number {i_block}")
                 h = modules[m_idx](torch.cat([h, hs.pop()], dim=1), temb)
+                #print(f"Appended hs and now m_idx = {m_idx}")
                 m_idx += 1
 
             if h.shape[-1] in self.attn_resolutions:
+                #print(f"Went to attention resolutions. Shape before {h.shape}")
                 h = modules[m_idx](h)
+                #print(f"Shape after attention: {h.shape}")
                 m_idx += 1
 
             if self.progressive != 'none':
